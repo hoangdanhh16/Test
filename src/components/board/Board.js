@@ -1,5 +1,6 @@
 import React from 'react';
-import Square from "./Square";
+import Square from "../square/Square";
+import './Board.css'
 
 function Board(props) {
     return (

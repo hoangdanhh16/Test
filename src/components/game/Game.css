@@ -1,0 +1,15 @@
+.game {
+    display: flex;
+    flex-direction: row;
+}
+  
+.game-info {
+    margin-left: 20px;
+}
+
+.btn-selected {
+    background: black;
+    border: none;
+    color: blue;
+    font-weight: bold;
+}

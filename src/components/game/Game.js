@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import Board from "./Board";
-
+import Board from "../board/Board";
+import './Game.css'
 
 function Game() {
     const [history, setHistory] = useState ([

@@ -1,4 +1,5 @@
 import React from 'react';
+import './Square.css'
 
 function Square({isWinning, onClick, value}) {
     return (
