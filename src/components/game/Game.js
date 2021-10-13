@@ -5,120 +5,206 @@ import './Game.css'
 function Game() {
     const [history, setHistory] = useState ([
         {
-            squares: Array(9).fill(null),
+            squares: Array(25).fill(null),
+            posX: null,
+            posY: null
         }
     ]);
 
     const [stepNumber, setStepNumber] = useState (0);
-    const [xIsNext, setXINext] = useState (true);
+    const [xIsNext, setXIsNext] = useState (true);
     const [isAscending, setIsAscending] = useState (true);
+    const [length, setLength] = useState (5);
 
-    function calculateWinner(squares) {
-        const lines = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
-        ];
-        for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return {winner: squares[a], line: lines[i]}
+    function calculateWinner(squares, value) {
+        if(value == null) {
+            return null
+        }
+        for(let i = 0; i<length; i++){
+            for(let j = 0; j<length; j++){
+                let curVal = squares[i * length + j]
+                if((i+4)<length){
+                    if(curVal === squares[(i + 1)*length + j] 
+                        && curVal === squares[(i + 2)*length + j] 
+                        && curVal === squares[(i + 3)*length + j] 
+                        && curVal === squares[(i + 4)*length + j] 
+                        && curVal === value) {
+                            const res = {
+                                winner: value,
+                                winStreak: [(i)*length + j,
+                                            (i + 1)*length + j,
+                                            (i + 2)*length + j,
+                                            (i + 3)*length + j,
+                                            (i + 4)*length + j
+                                ]       
+                            }
+                            return res
+                    }
+                }
+
+                if((i + 4<length) && (j + 4 <length)){
+                    if(curVal === squares[(i + 1)*length + j + 1] 
+                        && curVal === squares[(i + 2)*length + j + 2] 
+                        && curVal === squares[(i + 3)*length + j + 3] 
+                        && curVal === squares[(i + 4)*length + j + 4] 
+                        && curVal === value) {
+                            const res = {
+                                winner: value,
+                                winStreak: [(i)*length + j,
+                                            (i + 1)*length + j + 1,
+                                            (i + 2)*length + j + 2,
+                                            (i + 3)*length + j + 3,
+                                            (i + 4)*length + j + 4
+                                ]       
+                            }
+                            return res
+                    }
+                }
+
+                if((i - 4 >= length) && (j + 4 <length)){
+                    if(curVal === squares[(i - 1)*length + j + 1] 
+                        && curVal === squares[(i - 2)*length + j + 2] 
+                        && curVal === squares[(i - 3)*length + j + 3] 
+                        && curVal === squares[(i - 4)*length + j + 4] 
+                        && curVal === value) {
+                            const res = {
+                                winner: value,
+                                winStreak: [(i)*length + j,
+                                            (i - 1)*length + j + 1,
+                                            (i - 2)*length + j + 2,
+                                            (i - 3)*length + j + 3,
+                                            (i - 4)*length + j + 4
+                                ]       
+                            }
+                            return res
+                    }
+                }
+
+                if(j + 4 <length){
+                    if(curVal === squares[(i)*length + j + 1] 
+                        && curVal === squares[(i)*length + j + 2] 
+                        && curVal === squares[(i)*length + j + 3] 
+                        && curVal === squares[(i)*length + j + 4] 
+                        && curVal === value) {
+                            const res = {
+                                winner: value,
+                                winStreak: [(i)*length + j,
+                                            (i)*length + j + 1,
+                                            (i)*length + j + 2,
+                                            (i)*length + j + 3,
+                                            (i)*length + j + 4
+                                ]       
+                            }
+                            return res
+                    }
+                }
             }
         }
-        return null;
+        return null
     }
     
     function handleClick(i) {
         const currentHistory = history.slice(0, stepNumber + 1);
         const current = currentHistory[currentHistory.length - 1];
         const squares = current.squares.slice();
-        const positions = [
-            [1, 1],
-            [2, 1],
-            [3, 1],
-            [1, 2],
-            [2, 2],
-            [3, 2],
-            [1, 3],
-            [2, 3],
-            [3, 3]
-        ];
+       
 
-        if (calculateWinner(squares) || squares[i]) {
-            return;
+        if (calculateWinner(squares, squares[i]) || squares[i]) {
+            return
         }
         squares[i] = xIsNext ? 'X' : 'O';
 
         setHistory(currentHistory.concat([
             {
                 squares: squares,
-                position: positions[i]
-            },
-        ]));
+                posX: Math.floor(i / 3),
+                posY: i % 3
+            }]));
         setStepNumber(currentHistory.length);
-        setXINext(!xIsNext);
+        setXIsNext(!xIsNext);
     }    
     
     function jumpTo(step) {
         setStepNumber(step);
-        setXINext(step % 2 === 0);
+        setXIsNext(step % 2 === 0);
     }
     
     function arrange(){
         setIsAscending(!isAscending);
     }
 
-    const current = history[stepNumber];
-    const winner = calculateWinner(current.squares);
+    function handleChangeWidth(e) {
+        const val = Number(e.target.value);
+
+        setLength(val);
+        setHistory([{
+            squares: Array(length * length).fill(null),
+            posX: null,
+            posY: null
+        }]);
+        setStepNumber(0);
+        setXIsNext(true);
+    }
+
+    const currentHistory = history;
+    const current = currentHistory[stepNumber];
+    const resCalculated = calculateWinner(current.squares, !xIsNext ? 'X' : 'O')
+    let winner = null;
+    let winStreak = [];
+    if (resCalculated) {
+        winner = resCalculated.winner
+        winStreak = resCalculated.winStreak
+    }
+
+    const curAscending = isAscending
 
     const moves = history.map((step, move) => {
+        const posX = history[move].posX;
+        const posY = history[move].posY;
+        const key = `${posX}, ${posY}`
         const desc = move ?
-        `Go to step #${move} (${history[move].position[0]}, ${history[move].position[1]})` :
-        'Go to game start';
+            `Go to step #${move} (${posX}, ${posY})` :
+            'Go to game start';
 
         const classname = move === stepNumber ? 'btn-selected' : 'btn';
 
         return (
-            <li key={move}>
-            <button className = {classname} onClick={() => jumpTo(move)}>{desc}</button>
+            <li key={key}>
+                <button className = {classname} onClick={() => jumpTo(move)}>{desc}</button>
             </li>
         );
     });
 
     let status;
-    if (winner) {
-        status = 'Winner: ' + winner.winner;
-    } else if (stepNumber === 9){
-        status = 'Draw'
-    } else{
-        status = 'Next player: ' + (xIsNext ? 'X' : 'O')
+    if (stepNumber === length * length && !resCalculated) {
+        status = 'Draw match'
     }
-    
-    const currentAscending = isAscending;
-    if (!currentAscending) {
-        moves.reverse();
+    else if (resCalculated) {
+        status = 'The winner is: ' + winner;
+    }
+    else {
+        status = 'Next player: ' + (xIsNext ? 'X' : 'O')
     }
 
     return (
         <div className="game">
+            <div className="game-config">
+                <span className="fixed-size">Chiều rộng:</span>
+                <input type="number" placeholder="Chiều rộng" value={length} onChange={handleChangeWidth} />
+            </div>
+            <br/>
             <div className="game-board">
-                <Board
-                    squares={current.squares}
-                    onClick={(i) => handleClick(i)}
-                    isWinSquare = {winner ? winner.line : []}
+                <Board 
+                    squares={current.squares} 
+                    onClick={(i) => handleClick(i)} 
+                    winStreak={winStreak} 
+                    length={length} 
                 />
             </div>
             <div className="game-info">
                 <div>{status}</div>
-                <button onClick={() => arrange()}>
-                    {isAscending ? "Descending" : "Ascending"}
-                </button>
-                <ol>{moves}</ol>
+                <button onClick={() => arrange()}>Sort</button>
+                <ol>{!curAscending ? moves : moves.reverse()}</ol>
             </div>
         </div>
     );

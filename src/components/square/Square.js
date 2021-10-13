@@ -1,13 +1,13 @@
 import React from 'react';
 import './Square.css'
 
-function Square({isWinning, onClick, value}) {
+function Square(props) {
     return (
         <button
-            className={isWinning ? "square won" : "square"} 
-            onClick={onClick}
+            className={props.isWinSquare ? "square won" : "square"} 
+            onClick={props.onClick}
         >      
-            {value}
+            {props.value}
         </button>
     );
     
